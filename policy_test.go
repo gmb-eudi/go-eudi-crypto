@@ -130,3 +130,78 @@ func TestECCGVersionPinned(t *testing.T) {
 		t.Errorf("ECCGVersion = %q, want \"2.0\"", crypto.ECCGVersion)
 	}
 }
+
+// AllowedHashName / HashForName cover the IANA "Named Information Hash
+// Algorithm" registry values used by SD-JWT `_sd_alg` (draft-ietf-oauth-sd-jwt).
+func TestPolicyAllowedHashName(t *testing.T) {
+	p := crypto.ECCG()
+	for name, want := range map[string]bool{
+		"sha-256": true, "sha-384": true, "sha-512": true,
+		"":        true,  // SD-JWT §4.1.1: absent _sd_alg = scheme default (sha-256)
+		"SHA-256": false, // mdoc spelling — not an SD-JWT _sd_alg value
+		"sha-1":   false, "md5": false, "sha256": false,
+	} {
+		if got := p.AllowedHashName(name); got != want {
+			t.Errorf("AllowedHashName(%q) = %v, want %v", name, got, want)
+		}
+	}
+}
+
+func TestPolicyHashForName(t *testing.T) {
+	p := crypto.ECCG()
+	tests := []struct {
+		name    string
+		want    stdcrypto.Hash
+		wantErr bool
+	}{
+		{"sha-256", stdcrypto.SHA256, false},
+		{"sha-384", stdcrypto.SHA384, false},
+		{"sha-512", stdcrypto.SHA512, false},
+		{"", stdcrypto.SHA256, false}, // SD-JWT §4.1.1: absent _sd_alg defaults to sha-256
+		{"SHA-256", 0, true},          // uppercase is the mdoc form, not _sd_alg
+		{"sha-1", 0, true},
+	}
+	for _, tt := range tests {
+		got, err := p.HashForName(tt.name)
+		if tt.wantErr {
+			if !errors.Is(err, crypto.ErrAlgorithmNotAllowed) {
+				t.Errorf("HashForName(%q) err = %v, want ErrAlgorithmNotAllowed", tt.name, err)
+			}
+			continue
+		}
+		if err != nil || got != tt.want {
+			t.Errorf("HashForName(%q) = %v, %v; want %v", tt.name, got, err, tt.want)
+		}
+	}
+}
+
+// HashForMSODigestAlg covers ISO/IEC 18013-5 MSO `digestAlgorithm` (uppercase
+// SHA-2 names); it reuses the single hash allow-list behind HashForName.
+func TestPolicyHashForMSODigestAlg(t *testing.T) {
+	p := crypto.ECCG()
+	tests := []struct {
+		alg     string
+		want    stdcrypto.Hash
+		wantErr bool
+	}{
+		{"SHA-256", stdcrypto.SHA256, false},
+		{"SHA-384", stdcrypto.SHA384, false},
+		{"SHA-512", stdcrypto.SHA512, false},
+		{"sha-256", 0, true}, // lowercase is the SD-JWT form, not MSO
+		{"SHA-1", 0, true},
+		{"MD5", 0, true},
+		{"", 0, true},
+	}
+	for _, tt := range tests {
+		got, err := p.HashForMSODigestAlg(tt.alg)
+		if tt.wantErr {
+			if !errors.Is(err, crypto.ErrAlgorithmNotAllowed) {
+				t.Errorf("HashForMSODigestAlg(%q) err = %v, want ErrAlgorithmNotAllowed", tt.alg, err)
+			}
+			continue
+		}
+		if err != nil || got != tt.want {
+			t.Errorf("HashForMSODigestAlg(%q) = %v, %v; want %v", tt.alg, got, err, tt.want)
+		}
+	}
+}

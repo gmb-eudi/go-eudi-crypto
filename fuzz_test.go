@@ -7,6 +7,7 @@ import (
 	"crypto/rand"
 	"crypto/x509"
 	"crypto/x509/pkix"
+	"encoding/json"
 	"math/big"
 	"testing"
 	"time"
@@ -97,5 +98,24 @@ func FuzzParseCertChain(f *testing.F) {
 	f.Add([]byte(""))
 	f.Fuzz(func(_ *testing.T, data []byte) {
 		_, _ = crypto.ParseCertChain(data) // must not panic
+	})
+}
+
+func FuzzParseECPublicKeyJWK(f *testing.F) {
+	m, err := crypto.ECPublicKeyToJWK(fuzzKey(f).Public())
+	if err != nil {
+		f.Fatal(err)
+	}
+	seed, err := json.Marshal(m)
+	if err != nil {
+		f.Fatal(err)
+	}
+	f.Add(seed)
+	f.Add([]byte(`{"kty":"EC","crv":"P-256","x":"AAAA","y":"AAAA"}`))
+	f.Add([]byte(`{"kty":"OKP","crv":"Ed25519","x":"AAAA"}`))
+	f.Add([]byte(`{}`))
+	f.Add([]byte(""))
+	f.Fuzz(func(_ *testing.T, data []byte) {
+		_, _ = crypto.ParseECPublicKeyJWK(data) // must not panic
 	})
 }
