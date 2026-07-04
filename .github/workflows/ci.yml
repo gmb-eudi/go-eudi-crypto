@@ -1,0 +1,32 @@
+name: ci
+on:
+  push:
+    branches: [main]
+  pull_request:
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-go@v5
+        with:
+          go-version: "1.26.x"
+      - run: go build ./...
+      - run: go vet ./...
+      - run: go test -race -cover ./...
+      - uses: golangci/golangci-lint-action@v8
+  fuzz-short:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-go@v5
+        with:
+          go-version: "1.26.x"
+      - name: short fuzz, 30s per target
+        run: |
+          for pkg in $(go list ./...); do
+            targets=$(go test -list '^Fuzz' "$pkg" 2>/dev/null | grep '^Fuzz' || true)
+            for t in $targets; do
+              go test -run '^$' -fuzz "^${t}\$" -fuzztime 30s "$pkg"
+            done
+          done
