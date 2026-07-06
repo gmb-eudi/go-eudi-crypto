@@ -18,9 +18,13 @@ relying-party and issuer components.
 - EC JWK helpers: `ParseECPublicKeyJWK([]byte)` / `ECPublicKeyToJWK` →
   `map[string]any` (RFC 7518 §6.2; used for SD-JWT VC `cnf.jwk` holder keys,
   RFC 7800), strict + fuzzed.
+- `JWKThumbprint(crypto.PublicKey) (string, error)`: RFC 7638 JWK Thumbprint
+  (SHA-256, base64url, no padding) of an EC public key's REQUIRED-members-only
+  JWK; used to bind an ephemeral EC key into an mdoc `SessionTranscript`
+  (OpenID4VP 1.0 Annex B.2).
 
-Implemented specs: RFC 7515/7516/7518, RFC 9052/9053, RFC 5280, RFC 7800, HAIP
-1.0 crypto profile; SD-JWT `_sd_alg` (IANA named-hash) and ISO/IEC 18013-5 MSO
-`digestAlgorithm`. See SPECREFS.md for pinned versions.
+Implemented specs: RFC 7515/7516/7518, RFC 9052/9053, RFC 5280, RFC 7638,
+RFC 7800, HAIP 1.0 crypto profile; SD-JWT `_sd_alg` (IANA named-hash) and
+ISO/IEC 18013-5 MSO `digestAlgorithm`. See SPECREFS.md for pinned versions.
 
 Status: pre-v1. API frozen no earlier than OIDF conformance pass.

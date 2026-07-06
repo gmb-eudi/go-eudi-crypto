@@ -10,3 +10,4 @@
 | Key confirmation (`cnf`) — EC JWK parse/serialize | RFC 7800 + RFC 7518 §6.2 |
 | SD-JWT `_sd_alg` hash names (sha-256/384/512) | IANA "Named Information Hash Algorithm" registry |
 | mdoc MSO `digestAlgorithm` (SHA-256/384/512) | ISO/IEC 18013-5 §9.1.2.5 |
+| JWK Thumbprint (`JWKThumbprint`) | RFC 7638 §3 (SHA-256 fixed by the RFC, not ECCG-selectable) |
