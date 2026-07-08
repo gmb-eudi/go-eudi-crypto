@@ -11,6 +11,12 @@ relying-party and issuer components.
   `[]*x509.Certificate`, `VerifyJWS`, `EncryptJWE`, `DecryptJWE`); COSE_Sign1
   façade over veraison/go-cose; X.509 chain validation against explicit anchors
   only (no system pool).
+- Structural (pre-trust) header peek: `ParseJWSHeader([]byte) (Header, error)`
+  and `X5CFromHeader(Header) ([]*x509.Certificate, error)` read the protected
+  header / decode the `x5c` chain (RFC 7515 §4.1 / §4.1.6) WITHOUT verifying the
+  signature or validating the chain — they exist so a caller can resolve a
+  candidate issuer key (e.g. from `x5c`, against a trust anchor) BEFORE calling
+  `VerifyJWS`. Never trust their output directly; verify first.
 - Hash-name policy for content formats: `HashForName` (SD-JWT `_sd_alg`,
   e.g. `sha-256`; empty name → baseline `sha-256` per SD-JWT §4.1.1) and
   `HashForMSODigestAlg` (mdoc `digestAlgorithm`, e.g. `SHA-256`) over one ECCG
