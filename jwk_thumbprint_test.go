@@ -23,7 +23,7 @@ import (
 // The expected thumbprint was derived independently of this package, in three
 // separate tools that all agreed:
 //
-//	canonical JSON (RFC 7638 §3.1 member order kty<crv<x<y is ASCII-sorted to
+//	canonical JSON ([RFC 7638 §3.1] member order kty<crv<x<y is ASCII-sorted to
 //	crv,kty,x,y; no whitespace):
 //	  {"crv":"P-256","kty":"EC","x":"LgH6aeDE1PAI11QOE9gG2rl9OyXiJAoU0vPlFdvgkss","y":"fSbLY-jqdziJAVHqAfKxR1VqS9HWEUXEaK_iHal0KxQ"}
 //	sha256sum / openssl dgst -sha256 / node crypto.createHash("sha256") of the
@@ -124,7 +124,7 @@ func TestJWKThumbprintRejectsNonEC(t *testing.T) {
 }
 
 // TestECPublicKeyToJWKMarshalOrder is the canonicalization-correctness claim
-// the whole thumbprint function depends on (RFC 7638 §3.1): json.Marshal on
+// the whole thumbprint function depends on ([RFC 7638 §3.1]): json.Marshal on
 // the map returned by ECPublicKeyToJWK must produce keys in ASCII-sorted
 // order (crv, kty, x, y) with no extra whitespace. This is a byte-level
 // assertion, not an assumption.

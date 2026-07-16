@@ -15,7 +15,7 @@ type KeyProvider interface {
 }
 
 // Decrypter exposes the private key material needed for JWE ECDH-ES key
-// agreement (RFC 7518 §4.6). In-memory implementations return the key
+// agreement ([RFC 7518 §4.6]). In-memory implementations return the key
 // directly; HSM-backed implementations require a native-decrypt extension of
 // this interface — revisited when an HSM-backed provider lands.
 type Decrypter interface {

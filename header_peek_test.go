@@ -19,7 +19,7 @@ func b64url(s string) string {
 }
 
 // ParseJWSHeader must structurally read the protected header of a real
-// SignJWS output WITHOUT verifying the signature (RFC 7515 §4.1). The alg is
+// SignJWS output WITHOUT verifying the signature ([RFC 7515 §4.1]). The alg is
 // present because SignJWS derives it from the key.
 func TestParseJWSHeaderRoundTripNoX5C(t *testing.T) {
 	key := genKey(t, elliptic.P256())
@@ -45,7 +45,7 @@ func TestParseJWSHeaderRoundTripNoX5C(t *testing.T) {
 }
 
 // The x5c round-trip must preserve leaf-first order and exact DER bytes: what
-// X5CFromHeader decodes must equal what SignJWS embedded (RFC 7515 §4.1.6).
+// X5CFromHeader decodes must equal what SignJWS embedded ([RFC 7515 §4.1.6]).
 func TestParseJWSHeaderX5CRoundTrip(t *testing.T) {
 	key := genKey(t, elliptic.P256())
 	kp := memProvider{"sign": key}

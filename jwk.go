@@ -9,7 +9,7 @@ import (
 	"fmt"
 )
 
-// ecJWK is the RFC 7518 §6.2 JSON Web Key representation of an EC public key.
+// ecJWK is the [RFC 7518 §6.2] JSON Web Key representation of an EC public key.
 type ecJWK struct {
 	Kty string `json:"kty"`
 	Crv string `json:"crv"`
@@ -64,7 +64,7 @@ func ParseECPublicKeyJWK(jwkJSON []byte) (stdcrypto.PublicKey, error) {
 	if err != nil {
 		return nil, fmt.Errorf("%w: EC JWK y: %v", ErrMalformed, err)
 	}
-	// RFC 7518 §6.2.1.2/.3: x and y are the fixed-size big-endian field
+	// [RFC 7518 §6.2.1.2]/.3: x and y are the fixed-size big-endian field
 	// elements; reject wrong-sized inputs (they would silently zero-extend).
 	size := (curve.Params().BitSize + 7) / 8
 	if len(xb) != size || len(yb) != size {
@@ -84,7 +84,7 @@ func ParseECPublicKeyJWK(jwkJSON []byte) (stdcrypto.PublicKey, error) {
 	return pub, nil
 }
 
-// ECPublicKeyToJWK serializes an EC public key to an RFC 7518 §6.2 JWK as a
+// ECPublicKeyToJWK serializes an EC public key to an [RFC 7518 §6.2] JWK as a
 // map (ready to embed as an SD-JWT VC `cnf.jwk` object; RFC 7800). Rejects
 // non-EC keys and curves not on the ECCG allow-list.
 func ECPublicKeyToJWK(pub stdcrypto.PublicKey) (map[string]any, error) {

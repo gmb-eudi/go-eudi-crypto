@@ -81,7 +81,7 @@ func TestJWSAlgNoneRejected(t *testing.T) {
 	}
 }
 
-// Alg-confusion: RS256 token presented against an EC key (RFC 8725 §2.1).
+// Alg-confusion: RS256 token presented against an EC key ([RFC 8725 §2.1]).
 func TestJWSAlgConfusionRejected(t *testing.T) {
 	key := genKey(t, elliptic.P256())
 	tok := craft(t, map[string]any{"alg": "RS256"}, "x")
@@ -101,7 +101,7 @@ func TestJWSAllowedButMismatchedAlgRejected(t *testing.T) {
 	}
 }
 
-// RFC 7515 §4.1.11: we support no crit extensions, so any crit is rejected —
+// [RFC 7515 §4.1.11]: we support no crit extensions, so any crit is rejected —
 // before signature verification.
 func TestJWSCritRejected(t *testing.T) {
 	key := genKey(t, elliptic.P256())

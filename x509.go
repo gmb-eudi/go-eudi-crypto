@@ -16,7 +16,7 @@ type ChainOptions struct {
 	At      time.Time          // required; explicitly injected clock, no hidden time.Now
 }
 
-// VerifyChain performs RFC 5280 §6.1 path validation of leaf against the
+// VerifyChain performs [RFC 5280 §6.1] path validation of leaf against the
 // explicit anchor set. Fail closed: empty anchors is an error, never a
 // system-pool fallback.
 func VerifyChain(leaf *x509.Certificate, intermediates []*x509.Certificate, opts ChainOptions) ([][]*x509.Certificate, error) {

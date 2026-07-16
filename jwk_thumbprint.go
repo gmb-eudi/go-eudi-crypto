@@ -12,7 +12,7 @@ import (
 // base64url-encoded (RawURLEncoding, no padding) SHA-256 digest of the UTF-8
 // JSON representation of the JWK's REQUIRED members only — for an EC key
 // exactly {"kty","crv","x","y"} — serialized with no whitespace and member
-// names in lexicographic order (RFC 7638 §3, §3.1). The hash is fixed to
+// names in lexicographic order ([RFC 7638 §3, §3.1]). The hash is fixed to
 // SHA-256 by RFC 7638 itself, not a caller-configurable ECCG policy choice.
 //
 // Used to bind an ephemeral EC public key into an mdoc SessionTranscript
@@ -28,7 +28,7 @@ func JWKThumbprint(pub stdcrypto.PublicKey) (string, error) {
 		return "", err
 	}
 	// encoding/json.Marshal on a map[string]any sorts keys lexicographically
-	// (ASCII order) and emits no extra whitespace — exactly the RFC 7638 §3.1
+	// (ASCII order) and emits no extra whitespace — exactly the [RFC 7638 §3.1]
 	// canonical form. Verified byte-for-byte by
 	// TestECPublicKeyToJWKMarshalOrder.
 	canonical, err := json.Marshal(jwk)

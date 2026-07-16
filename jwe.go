@@ -66,7 +66,7 @@ func DecryptJWE(ctx context.Context, kp KeyProvider, keyID string, token []byte)
 }
 
 // GenerateEphemeralKey creates a fresh EC keypair for per-session response
-// encryption (HAIP response encryption; OID4VP §8.3 direct_post.jwt). The
+// encryption (HAIP response encryption; [OID4VP §8.3] direct_post.jwt). The
 // curve must be ECCG-allowed.
 func GenerateEphemeralKey(crv string) (*ecdsa.PrivateKey, error) {
 	if !ECCG().AllowedCurve(crv) {

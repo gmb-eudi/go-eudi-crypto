@@ -104,7 +104,7 @@ func FuzzParseCertChain(f *testing.F) {
 // FuzzParseJWSHeader fuzzes the structural header-peek path (ParseJWSHeader +
 // X5CFromHeader). Unlike FuzzVerifyJWS, no signature gates the parse, so
 // mutation reaches the decode logic directly. Neither function may panic on
-// adversarial input (hard rule 5).
+// adversarial input.
 func FuzzParseJWSHeader(f *testing.F) {
 	key := fuzzKey(f)
 	kp := crypto.NewStaticProvider(map[string]*ecdsa.PrivateKey{"k": key})

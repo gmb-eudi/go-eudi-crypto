@@ -15,7 +15,7 @@ import (
 )
 
 // algForECKey maps the key's curve to the single ECCG-allowed JWS alg for
-// that curve (RFC 7518 §3.4). The token never chooses the algorithm.
+// that curve ([RFC 7518 §3.4]). The token never chooses the algorithm.
 func algForECKey(pub *ecdsa.PublicKey) (string, error) {
 	switch pub.Curve {
 	case elliptic.P256():
@@ -70,7 +70,7 @@ func SignJWS(ctx context.Context, kp KeyProvider, keyID string, protected map[st
 		if k == "x5c" {
 			// jwx types x5c as *cert.Chain; accept the caller's certificates as
 			// []*x509.Certificate (leaf first) and convert here so services never
-			// import jwx (ADR-0004). RFC 7515 §4.1.6.
+			// import jwx. [RFC 7515 §4.1.6].
 			chain, ok := v.([]*x509.Certificate)
 			if !ok {
 				return nil, fmt.Errorf("%w: x5c must be []*x509.Certificate, got %T", ErrMalformed, v)
@@ -97,7 +97,7 @@ func SignJWS(ctx context.Context, kp KeyProvider, keyID string, protected map[st
 
 // VerifyJWS verifies a compact JWS against an explicitly supplied key.
 // The expected algorithm is derived from the key, never taken from the token
-// (RFC 8725 §3.1 / §3.2); jku/x5u are never dereferenced — key resolution
+// ([RFC 8725 §3.1 / §3.2]); jku/x5u are never dereferenced — key resolution
 // belongs to the trust layer, not this library.
 func VerifyJWS(token []byte, key stdcrypto.PublicKey) ([]byte, Header, error) {
 	pub, ok := key.(*ecdsa.PublicKey)
@@ -138,7 +138,7 @@ func VerifyJWS(token []byte, key stdcrypto.PublicKey) ([]byte, Header, error) {
 
 // certChain builds the jwx *cert.Chain required for the JWS x5c header from DER
 // certificates (leaf first), each serialized as base64 (standard, not URL) DER
-// per RFC 7515 §4.1.6.
+// per [RFC 7515 §4.1.6].
 func certChain(chain []*x509.Certificate) (*cert.Chain, error) {
 	if len(chain) == 0 {
 		return nil, fmt.Errorf("%w: x5c is empty", ErrMalformed)

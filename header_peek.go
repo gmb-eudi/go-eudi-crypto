@@ -8,7 +8,7 @@ import (
 )
 
 // ParseJWSHeader reads and JSON-decodes the protected header of a 3-segment
-// compact JWS WITHOUT verifying the signature (RFC 7515 §4.1). Structural
+// compact JWS WITHOUT verifying the signature ([RFC 7515 §4.1]). Structural
 // only — NEVER use its output to make a trust decision. It exists so a caller
 // can inspect header members (e.g. an x5c chain, via X5CFromHeader) to resolve
 // a candidate key BEFORE calling VerifyJWS; verify with VerifyJWS for anything
@@ -34,7 +34,7 @@ func ParseJWSHeader(token []byte) (Header, error) {
 }
 
 // isCompactJWS reports whether token is a compact-serialized JWS shape: exactly
-// three '.'-separated segments, all non-empty (RFC 7515 §7.1). It validates
+// three '.'-separated segments, all non-empty ([RFC 7515 §7.1]). It validates
 // structure only — not the base64url charset of each segment nor the
 // signature. Mirrors go-sdjwt's isCompactJWS.
 func isCompactJWS(token []byte) bool {
@@ -53,7 +53,7 @@ func isCompactJWS(token []byte) bool {
 	return true
 }
 
-// X5CFromHeader decodes the RFC 7515 §4.1.6 x5c header member (a JSON array of
+// X5CFromHeader decodes the [RFC 7515 §4.1.6] x5c header member (a JSON array of
 // standard-base64-encoded DER certificates, leaf first) into parsed
 // certificates. It is the symmetric decode counterpart of the certChain encode
 // side and returns the certificates leaf-first, in header order. Returns
@@ -80,7 +80,7 @@ func X5CFromHeader(h Header) ([]*x509.Certificate, error) {
 			return nil, fmt.Errorf("%w: x5c[%d] is not a string", ErrMalformed, i)
 		}
 		// Standard base64 (not URL-safe), matching the certChain encode side —
-		// a wire-format constant from RFC 7515 §4.1.6, not an algorithm choice.
+		// a wire-format constant from [RFC 7515 §4.1.6], not an algorithm choice.
 		der, err := base64.StdEncoding.DecodeString(s)
 		if err != nil {
 			return nil, fmt.Errorf("%w: x5c[%d]: %v", ErrMalformed, i, err)

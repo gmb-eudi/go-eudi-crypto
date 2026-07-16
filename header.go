@@ -11,8 +11,8 @@ import (
 type Header map[string]any
 
 // parseProtectedSegment decodes the protected header of a compact-serialized
-// JOSE object with the given number of segments (JWS: 3 per RFC 7515 §7.1,
-// JWE: 5 per RFC 7516 §7.1). Non-compact serializations are rejected.
+// JOSE object with the given number of segments (JWS: 3 per [RFC 7515 §7.1],
+// JWE: 5 per [RFC 7516 §7.1]). Non-compact serializations are rejected.
 func parseProtectedSegment(token []byte, segments int) (Header, error) {
 	if bytes.Count(token, []byte(".")) != segments-1 {
 		return nil, fmt.Errorf("%w: expected compact serialization with %d segments", ErrMalformed, segments)
@@ -31,7 +31,7 @@ func parseProtectedSegment(token []byte, segments int) (Header, error) {
 	return h, nil
 }
 
-// checkCrit implements RFC 7515 §4.1.11 / RFC 7516 §4.1.13: this library
+// checkCrit implements [RFC 7515 §4.1.11] / [RFC 7516 §4.1.13]: this library
 // supports no critical extension parameters, so any crit member is rejected.
 func checkCrit(h Header) error {
 	v, ok := h["crit"]

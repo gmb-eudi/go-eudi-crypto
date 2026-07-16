@@ -52,8 +52,8 @@ func protectedHeader(t *testing.T, token []byte) map[string]any {
 }
 
 // SignJWS accepts an x5c chain as []*x509.Certificate and serializes it as the
-// RFC 7515 §4.1.6 array of base64 (standard, not URL) DER strings. Needed by
-// WP-08 to sign the JAR with the WRPAC chain (CIR 2024/2982 Art. 3).
+// [RFC 7515 §4.1.6] array of base64 (standard, not URL) DER strings. Needed
+// to sign the JAR with the WRPAC chain ([CIR 2024/2982 Art. 3]).
 func TestSignJWSWithX5C(t *testing.T) {
 	ctx := context.Background()
 	key := genKey(t, elliptic.P256())
