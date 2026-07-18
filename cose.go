@@ -11,15 +11,15 @@ import (
 	"github.com/veraison/go-cose"
 )
 
-// COSEHeader carries integer-labeled COSE header parameters (RFC 9052 §3).
+// COSEHeader carries integer-labeled COSE header parameters ([RFC 9052 §3]).
 // EUDI profiles (ISO 18013-5 IssuerAuth/DeviceAuth) use integer labels only;
 // string labels are not surfaced by this façade.
 type COSEHeader map[int64]any
 
-const coseLabelAlg = int64(1) // RFC 9052 §3.1
+const coseLabelAlg = int64(1) // [RFC 9052 §3.1]
 
 // coseAlgForKey maps the key's curve to the single ECCG-allowed COSE alg
-// (RFC 9053 §2.1). The message never chooses the algorithm.
+// ([RFC 9053 §2.1]). The message never chooses the algorithm.
 func coseAlgForKey(pub *ecdsa.PublicKey) (cose.Algorithm, error) {
 	switch pub.Curve {
 	case elliptic.P256():
@@ -33,7 +33,7 @@ func coseAlgForKey(pub *ecdsa.PublicKey) (cose.Algorithm, error) {
 	}
 }
 
-// VerifyCOSESign1 verifies a COSE_Sign1 message (RFC 9052 §4.2) against an
+// VerifyCOSESign1 verifies a COSE_Sign1 message ([RFC 9052 §4.2]) against an
 // explicitly supplied key. The expected algorithm is derived from the key;
 // a mismatching protected alg is rejected.
 func VerifyCOSESign1(raw []byte, key stdcrypto.PublicKey) ([]byte, COSEHeader, error) {
@@ -90,7 +90,7 @@ func protectedToMap(p cose.ProtectedHeader) COSEHeader {
 	return out
 }
 
-// SignCOSESign1 signs payload as COSE_Sign1 (RFC 9052 §4.2). The alg label
+// SignCOSESign1 signs payload as COSE_Sign1 ([RFC 9052 §4.2]). The alg label
 // is derived from the key; callers must not set label 1 (algorithms are
 // derived from keys, never chosen by callers or messages).
 func SignCOSESign1(ctx context.Context, kp KeyProvider, keyID string, protected COSEHeader, payload []byte) ([]byte, error) {

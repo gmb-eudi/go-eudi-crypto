@@ -137,7 +137,7 @@ func TestPolicyAllowedHashName(t *testing.T) {
 	p := crypto.ECCG()
 	for name, want := range map[string]bool{
 		"sha-256": true, "sha-384": true, "sha-512": true,
-		"":        true,  // SD-JWT §4.1.1: absent _sd_alg = scheme default (sha-256)
+		"":        true,  // [SD-JWT §4.1.1]: absent _sd_alg = scheme default (sha-256)
 		"SHA-256": false, // mdoc spelling — not an SD-JWT _sd_alg value
 		"sha-1":   false, "md5": false, "sha256": false,
 	} {
@@ -157,7 +157,7 @@ func TestPolicyHashForName(t *testing.T) {
 		{"sha-256", stdcrypto.SHA256, false},
 		{"sha-384", stdcrypto.SHA384, false},
 		{"sha-512", stdcrypto.SHA512, false},
-		{"", stdcrypto.SHA256, false}, // SD-JWT §4.1.1: absent _sd_alg defaults to sha-256
+		{"", stdcrypto.SHA256, false}, // [SD-JWT §4.1.1]: absent _sd_alg defaults to sha-256
 		{"SHA-256", 0, true},          // uppercase is the mdoc form, not _sd_alg
 		{"sha-1", 0, true},
 	}

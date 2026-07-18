@@ -38,7 +38,7 @@ func EncryptJWE(recipient stdcrypto.PublicKey, protected map[string]any, payload
 		case "alg", "enc", "epk":
 			return nil, fmt.Errorf("%w: %q is library-owned", ErrProtectedHeader, k)
 		case "apu", "apv":
-			// RFC 7518 §4.6.1.2/.3: apu/apv are base64url-encoded octet strings
+			// [RFC 7518 §4.6.1.2]/.3: apu/apv are base64url-encoded octet strings
 			// on the wire. jwx models them as raw []byte (and re-encodes when
 			// serializing), so accept the base64url string form and decode it.
 			if s, ok := v.(string); ok {

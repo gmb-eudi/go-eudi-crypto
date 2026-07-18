@@ -38,7 +38,7 @@ type policy struct {
 
 // The versioned table. ECCG v2.0 (EW-PIO-01-003): ECDSA on NIST curves only;
 // HAIP 1.0 baseline ES256/P-256; JWE per HAIP: ECDH-ES key agreement with
-// AES-GCM content encryption. COSE labels per RFC 9053 §2.1.
+// AES-GCM content encryption. COSE labels per [RFC 9053 §2.1].
 var eccg = &policy{
 	jwsAlgs: map[string]stdcrypto.Hash{
 		"ES256": stdcrypto.SHA256,
@@ -65,7 +65,7 @@ var eccg = &policy{
 		"P-521": true,
 	},
 	// IANA "Named Information Hash Algorithm" values used by SD-JWT `_sd_alg`
-	// (draft-ietf-oauth-sd-jwt §4.1.1). The single hash allow-list; mdoc's
+	// ([SD-JWT §4.1.1]). The single hash allow-list; mdoc's
 	// uppercase MSO digestAlgorithm names map onto this via HashForMSODigestAlg.
 	hashNames: map[string]stdcrypto.Hash{
 		"sha-256": stdcrypto.SHA256,
@@ -94,10 +94,10 @@ func (p *policy) HashForAlg(alg string) (stdcrypto.Hash, error) {
 
 // AllowedHashName reports whether name is an ECCG-allowed hash identifier in
 // the IANA "Named Information Hash Algorithm" form used by SD-JWT `_sd_alg`
-// (draft-ietf-oauth-sd-jwt §4.1.1). Unknown = reject.
+// ([SD-JWT §4.1.1]). Unknown = reject.
 func (p *policy) AllowedHashName(name string) bool {
 	if name == "" {
-		return true // SD-JWT §4.1.1: absent _sd_alg = scheme default (baseline digest)
+		return true // [SD-JWT §4.1.1]: absent _sd_alg = scheme default (baseline digest)
 	}
 	_, ok := p.hashNames[name]
 	return ok
@@ -105,7 +105,7 @@ func (p *policy) AllowedHashName(name string) bool {
 
 // HashForName maps an SD-JWT `_sd_alg` hash identifier (e.g. "sha-256") to its
 // crypto.Hash. The empty string is the "scheme default" and resolves to the
-// baseline digest sha-256 (SD-JWT §4.1.1: absent _sd_alg). Unknown = reject.
+// baseline digest sha-256 ([SD-JWT §4.1.1]: absent _sd_alg). Unknown = reject.
 func (p *policy) HashForName(name string) (stdcrypto.Hash, error) {
 	if name == "" {
 		return p.hashNames["sha-256"], nil
@@ -118,7 +118,7 @@ func (p *policy) HashForName(name string) (stdcrypto.Hash, error) {
 }
 
 // HashForMSODigestAlg maps an ISO/IEC 18013-5 MSO `digestAlgorithm` value
-// (uppercase "SHA-256"/"SHA-384"/"SHA-512", ISO 18013-5 §9.1.2.5) to its
+// (uppercase "SHA-256"/"SHA-384"/"SHA-512", [ISO/IEC 18013-5 §9.1.2.5]) to its
 // crypto.Hash, reusing the single hash allow-list behind HashForName. Only the
 // exact uppercase SHA-2 spellings are accepted; anything else = reject.
 func (p *policy) HashForMSODigestAlg(alg string) (stdcrypto.Hash, error) {

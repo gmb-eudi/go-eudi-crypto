@@ -172,7 +172,7 @@ func TestVerifyChainFailures(t *testing.T) {
 }
 
 // path-len violation: root constrained to MaxPathLen 0 must not chain
-// through an intermediate (RFC 5280 §4.2.1.9).
+// through an intermediate ([RFC 5280 §4.2.1.9]).
 func TestVerifyChainPathLenViolation(t *testing.T) {
 	root := newRootCA(t, 0)
 	inter := root.issueIntermediate(t)

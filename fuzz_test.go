@@ -101,6 +101,53 @@ func FuzzParseCertChain(f *testing.F) {
 	})
 }
 
+// FuzzParseJWSHeader fuzzes the structural header-peek path (ParseJWSHeader +
+// X5CFromHeader). Unlike FuzzVerifyJWS, no signature gates the parse, so
+// mutation reaches the decode logic directly. Neither function may panic on
+// adversarial input.
+func FuzzParseJWSHeader(f *testing.F) {
+	key := fuzzKey(f)
+	kp := crypto.NewStaticProvider(map[string]*ecdsa.PrivateKey{"k": key})
+	// Seed: a real token with no x5c.
+	plain, err := crypto.SignJWS(context.Background(), kp, "k", nil, []byte(`{"a":1}`))
+	if err != nil {
+		f.Fatal(err)
+	}
+	f.Add(plain)
+	// Seed: a real token WITH an x5c chain (exercises X5CFromHeader on accept).
+	tmpl := &x509.Certificate{
+		SerialNumber: big.NewInt(1),
+		Subject:      pkix.Name{CommonName: "seed"},
+		NotBefore:    time.Date(2026, 1, 1, 0, 0, 0, 0, time.UTC),
+		NotAfter:     time.Date(2030, 1, 1, 0, 0, 0, 0, time.UTC),
+	}
+	der, err := x509.CreateCertificate(rand.Reader, tmpl, tmpl, key.Public(), key)
+	if err != nil {
+		f.Fatal(err)
+	}
+	leaf, err := x509.ParseCertificate(der)
+	if err != nil {
+		f.Fatal(err)
+	}
+	withX5C, err := crypto.SignJWS(context.Background(), kp, "k", map[string]any{"x5c": []*x509.Certificate{leaf}}, []byte(`{"a":1}`))
+	if err != nil {
+		f.Fatal(err)
+	}
+	f.Add(withX5C)
+	// Malformed seeds.
+	f.Add([]byte(""))
+	f.Add([]byte("a.b.c"))
+	f.Add([]byte("a.b"))
+	f.Add([]byte("!!!.b.c"))
+	f.Fuzz(func(_ *testing.T, data []byte) {
+		h, err := crypto.ParseJWSHeader(data) // must not panic
+		if err != nil {
+			return
+		}
+		_, _ = crypto.X5CFromHeader(h) // must not panic on any accepted header
+	})
+}
+
 func FuzzParseECPublicKeyJWK(f *testing.F) {
 	m, err := crypto.ECPublicKeyToJWK(fuzzKey(f).Public())
 	if err != nil {

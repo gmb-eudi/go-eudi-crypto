@@ -143,7 +143,7 @@ func craftJWE(t *testing.T, header map[string]any) []byte {
 	return []byte(seg + "....")
 }
 
-// RFC 7516 §4.1.13: we support no crit extensions, so any crit is rejected —
+// [RFC 7516 §4.1.13]: we support no crit extensions, so any crit is rejected —
 // before a decrypter is ever requested.
 func TestJWECritRejected(t *testing.T) {
 	key, err := crypto.GenerateEphemeralKey("P-256")
