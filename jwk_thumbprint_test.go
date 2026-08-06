@@ -1,10 +1,13 @@
 package crypto_test
 
 import (
+	"bytes"
 	"crypto/ecdsa"
 	"crypto/elliptic"
 	"crypto/rand"
 	"crypto/rsa"
+	"crypto/sha256"
+	"encoding/base64"
 	"encoding/hex"
 	"encoding/json"
 	"errors"
@@ -37,7 +40,8 @@ const (
 	testP256XHex = "2e01fa69e0c4d4f008d7540e13d806dab97d3b25e2240a14d2f3e515dbe092cb"
 	testP256YHex = "7d26cb63e8ea7738890151ea01f2b147556a4bd1d61145c468afe21da9742b14"
 
-	wantThumbprint = "KDnVVv9K6IM28EN7cJZWA7zArP2DXdYdbZzNzFZCZRk"
+	wantThumbprint    = "KDnVVv9K6IM28EN7cJZWA7zArP2DXdYdbZzNzFZCZRk"
+	wantThumbprintHex = "2839d556ff4ae88336f0437b70965603bcc0acfd835dd61d6d9ccdcc56426519"
 )
 
 func testP256PublicKey(t *testing.T) *ecdsa.PublicKey {
@@ -64,6 +68,65 @@ func TestJWKThumbprintKnownAnswer(t *testing.T) {
 	}
 	if got != wantThumbprint {
 		t.Errorf("JWKThumbprint = %q, want %q", got, wantThumbprint)
+	}
+}
+
+// The raw-digest form is checked against the SAME independently-derived vector
+// documented above — the 126-byte canonical JSON hashed by sha256sum, openssl
+// and node — one step earlier in the pipeline than the base64url form.
+func TestJWKThumbprintBytesKnownAnswer(t *testing.T) {
+	got, err := crypto.JWKThumbprintBytes(testP256PublicKey(t))
+	if err != nil {
+		t.Fatalf("JWKThumbprintBytes: %v", err)
+	}
+	if len(got) != sha256.Size {
+		t.Errorf("JWKThumbprintBytes returned %d bytes, want %d", len(got), sha256.Size)
+	}
+	if hex.EncodeToString(got) != wantThumbprintHex {
+		t.Errorf("JWKThumbprintBytes = %s, want %s", hex.EncodeToString(got), wantThumbprintHex)
+	}
+}
+
+// The two forms must stay exactly one base64url hop apart. Consumers pick the
+// form their wire format needs (bytes for the mdoc SessionTranscript, text for
+// identifiers) and must never disagree about the underlying value.
+func TestJWKThumbprintFormsAgree(t *testing.T) {
+	pub := testP256PublicKey(t)
+	raw, err := crypto.JWKThumbprintBytes(pub)
+	if err != nil {
+		t.Fatalf("JWKThumbprintBytes: %v", err)
+	}
+	text, err := crypto.JWKThumbprint(pub)
+	if err != nil {
+		t.Fatalf("JWKThumbprint: %v", err)
+	}
+	if got := base64.RawURLEncoding.EncodeToString(raw); got != text {
+		t.Errorf("base64url(JWKThumbprintBytes) = %q, JWKThumbprint = %q", got, text)
+	}
+	decoded, err := base64.RawURLEncoding.DecodeString(text)
+	if err != nil {
+		t.Fatalf("JWKThumbprint is not unpadded base64url: %v", err)
+	}
+	if !bytes.Equal(decoded, raw) {
+		t.Errorf("decode(JWKThumbprint) = %x, JWKThumbprintBytes = %x", decoded, raw)
+	}
+}
+
+func TestJWKThumbprintBytesRejectsNonEC(t *testing.T) {
+	rsaKey, err := rsa.GenerateKey(rand.Reader, 2048)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if _, err := crypto.JWKThumbprintBytes(rsaKey.Public()); !errors.Is(err, crypto.ErrKeyTypeNotAllowed) {
+		t.Errorf("RSA key: err = %v, want ErrKeyTypeNotAllowed", err)
+	}
+	if _, err := crypto.JWKThumbprintBytes(nil); !errors.Is(err, crypto.ErrKeyTypeNotAllowed) {
+		t.Errorf("nil key: err = %v, want ErrKeyTypeNotAllowed", err)
+	}
+	// Fail closed: no digest may be returned alongside the error.
+	got, _ := crypto.JWKThumbprintBytes(nil)
+	if got != nil {
+		t.Errorf("JWKThumbprintBytes(nil) returned %x with an error, want nil", got)
 	}
 }
 
