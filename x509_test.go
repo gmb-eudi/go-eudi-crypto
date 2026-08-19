@@ -242,3 +242,42 @@ func TestParseCertChainNoCertificateBlocks(t *testing.T) {
 		t.Fatalf("err = %v, want ErrMalformed", err)
 	}
 }
+
+// A caller must be able to tell an expired certificate from a chain to an
+// anchor we do not hold: those are different answers for a relying party, and
+// collapsing them sends people hunting for a trust problem that does not exist.
+// The sentinel stays, so existing callers keep working; the typed cause is
+// additionally reachable.
+func TestVerifyChainPreservesTypedCause(t *testing.T) {
+	root := newRootCA(t, 0)
+	expired := root.issueLeaf(t, nil, testNow.Add(-48*time.Hour), testNow.Add(-24*time.Hour))
+
+	_, err := crypto.VerifyChain(expired, nil, crypto.ChainOptions{
+		Anchors: []*x509.Certificate{root.cert},
+		At:      testNow,
+	})
+	if !errors.Is(err, crypto.ErrVerificationFailed) {
+		t.Fatalf("expired leaf: want ErrVerificationFailed, got %v", err)
+	}
+	var invalid x509.CertificateInvalidError
+	if !errors.As(err, &invalid) {
+		t.Fatalf("expired leaf: typed cause lost, cannot be told from an unknown anchor: %v", err)
+	}
+	if invalid.Reason != x509.Expired {
+		t.Fatalf("expired leaf: want Reason=Expired, got %v", invalid.Reason)
+	}
+
+	other := newRootCA(t, 0)
+	foreign := other.issueLeaf(t, nil, testNow.Add(-time.Hour), testNow.Add(time.Hour))
+	_, err = crypto.VerifyChain(foreign, nil, crypto.ChainOptions{
+		Anchors: []*x509.Certificate{root.cert},
+		At:      testNow,
+	})
+	if !errors.Is(err, crypto.ErrVerificationFailed) {
+		t.Fatalf("unknown anchor: want ErrVerificationFailed, got %v", err)
+	}
+	var unknown x509.UnknownAuthorityError
+	if !errors.As(err, &unknown) {
+		t.Fatalf("unknown anchor: typed cause lost: %v", err)
+	}
+}

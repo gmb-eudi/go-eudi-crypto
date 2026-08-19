@@ -61,7 +61,11 @@ func VerifyChain(leaf *x509.Certificate, intermediates []*x509.Certificate, opts
 		KeyUsages:     ekus,
 	})
 	if err != nil {
-		return nil, fmt.Errorf("%w: %v", ErrVerificationFailed, err)
+		// Wrap the standard library's error too, not just its text: an expired
+		// certificate and a chain to an unknown anchor are different answers,
+		// and a caller can only keep them apart if the typed cause survives
+		// (x509.CertificateInvalidError vs x509.UnknownAuthorityError).
+		return nil, fmt.Errorf("%w: %w", ErrVerificationFailed, err)
 	}
 	return chains, nil
 }
