@@ -83,11 +83,11 @@ func X5CFromHeader(h Header) ([]*x509.Certificate, error) {
 		// a wire-format constant from [RFC 7515 §4.1.6], not an algorithm choice.
 		der, err := base64.StdEncoding.DecodeString(s)
 		if err != nil {
-			return nil, fmt.Errorf("%w: x5c[%d]: %v", ErrMalformed, i, err)
+			return nil, fmt.Errorf("%w: x5c[%d]: %w", ErrMalformed, i, err)
 		}
 		c, err := x509.ParseCertificate(der)
 		if err != nil {
-			return nil, fmt.Errorf("%w: x5c[%d]: %v", ErrMalformed, i, err)
+			return nil, fmt.Errorf("%w: x5c[%d]: %w", ErrMalformed, i, err)
 		}
 		certs = append(certs, c)
 	}

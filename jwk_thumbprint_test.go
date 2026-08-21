@@ -11,7 +11,6 @@ import (
 	"encoding/hex"
 	"encoding/json"
 	"errors"
-	"math/big"
 	"testing"
 
 	crypto "github.com/gmb-eudi/go-eudi-crypto"
@@ -46,19 +45,19 @@ const (
 
 func testP256PublicKey(t *testing.T) *ecdsa.PublicKey {
 	t.Helper()
-	xb, err := hex.DecodeString(testP256XHex)
+	// 0x04 || X || Y — parsed rather than assigned to the deprecated X/Y
+	// fields, which also checks the point is on the curve.
+	pt, err := hex.DecodeString("04" + testP256XHex + testP256YHex)
 	if err != nil {
 		t.Fatal(err)
 	}
-	yb, err := hex.DecodeString(testP256YHex)
+
+	pub, err := ecdsa.ParseUncompressedPublicKey(elliptic.P256(), pt)
 	if err != nil {
 		t.Fatal(err)
 	}
-	return &ecdsa.PublicKey{
-		Curve: elliptic.P256(),
-		X:     new(big.Int).SetBytes(xb),
-		Y:     new(big.Int).SetBytes(yb),
-	}
+
+	return pub
 }
 
 func TestJWKThumbprintKnownAnswer(t *testing.T) {

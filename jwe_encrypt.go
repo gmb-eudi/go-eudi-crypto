@@ -44,16 +44,16 @@ func EncryptJWE(recipient stdcrypto.PublicKey, protected map[string]any, payload
 			if s, ok := v.(string); ok {
 				raw, err := base64.RawURLEncoding.DecodeString(s)
 				if err != nil {
-					return nil, fmt.Errorf("%w: header %q: %v", ErrMalformed, k, err)
+					return nil, fmt.Errorf("%w: header %q: %w", ErrMalformed, k, err)
 				}
 				if err := hdrs.Set(k, raw); err != nil {
-					return nil, fmt.Errorf("%w: header %q: %v", ErrMalformed, k, err)
+					return nil, fmt.Errorf("%w: header %q: %w", ErrMalformed, k, err)
 				}
 				continue
 			}
 		}
 		if err := hdrs.Set(k, v); err != nil {
-			return nil, fmt.Errorf("%w: header %q: %v", ErrMalformed, k, err)
+			return nil, fmt.Errorf("%w: header %q: %w", ErrMalformed, k, err)
 		}
 	}
 	// apu/apv and any caller headers go in the key-agreement (per-recipient)

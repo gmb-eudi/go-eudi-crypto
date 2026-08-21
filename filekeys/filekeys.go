@@ -48,7 +48,7 @@ func loadECKey(path string) (*ecdsa.PrivateKey, error) {
 	case "PRIVATE KEY": // PKCS#8
 		k, err := x509.ParsePKCS8PrivateKey(block.Bytes)
 		if err != nil {
-			return nil, fmt.Errorf("%w: %v", crypto.ErrMalformed, err)
+			return nil, fmt.Errorf("%w: %w", crypto.ErrMalformed, err)
 		}
 		ec, ok := k.(*ecdsa.PrivateKey)
 		if !ok {
@@ -58,7 +58,7 @@ func loadECKey(path string) (*ecdsa.PrivateKey, error) {
 	case "EC PRIVATE KEY": // SEC1
 		k, err := x509.ParseECPrivateKey(block.Bytes)
 		if err != nil {
-			return nil, fmt.Errorf("%w: %v", crypto.ErrMalformed, err)
+			return nil, fmt.Errorf("%w: %w", crypto.ErrMalformed, err)
 		}
 		return checkCurve(k)
 	default:
