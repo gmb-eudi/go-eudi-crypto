@@ -60,7 +60,7 @@ func DecryptJWE(ctx context.Context, kp KeyProvider, keyID string, token []byte)
 	}
 	pt, err := jwe.Decrypt(token, jwe.WithKey(ka, priv))
 	if err != nil {
-		return nil, nil, fmt.Errorf("%w: %v", ErrDecryptionFailed, err)
+		return nil, nil, fmt.Errorf("%w: %w", ErrDecryptionFailed, err)
 	}
 	return pt, hdr, nil
 }

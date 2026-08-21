@@ -20,13 +20,13 @@ func parseProtectedSegment(token []byte, segments int) (Header, error) {
 	head, _, _ := bytes.Cut(token, []byte("."))
 	raw, err := base64.RawURLEncoding.DecodeString(string(head))
 	if err != nil {
-		return nil, fmt.Errorf("%w: protected header: %v", ErrMalformed, err)
+		return nil, fmt.Errorf("%w: protected header: %w", ErrMalformed, err)
 	}
 	var h Header
 	dec := json.NewDecoder(bytes.NewReader(raw))
 	dec.UseNumber()
 	if err := dec.Decode(&h); err != nil {
-		return nil, fmt.Errorf("%w: protected header: %v", ErrMalformed, err)
+		return nil, fmt.Errorf("%w: protected header: %w", ErrMalformed, err)
 	}
 	return h, nil
 }

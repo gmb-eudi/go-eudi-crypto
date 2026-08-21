@@ -47,11 +47,11 @@ func VerifyCOSESign1(raw []byte, key stdcrypto.PublicKey) ([]byte, COSEHeader, e
 	}
 	var msg cose.Sign1Message
 	if err := msg.UnmarshalCBOR(raw); err != nil {
-		return nil, nil, fmt.Errorf("%w: %v", ErrMalformed, err)
+		return nil, nil, fmt.Errorf("%w: %w", ErrMalformed, err)
 	}
 	alg, err := msg.Headers.Protected.Algorithm()
 	if err != nil {
-		return nil, nil, fmt.Errorf("%w: protected alg: %v", ErrMalformed, err)
+		return nil, nil, fmt.Errorf("%w: protected alg: %w", ErrMalformed, err)
 	}
 	if !ECCG().AllowedCOSEAlg(int64(alg)) {
 		return nil, nil, fmt.Errorf("%w: COSE alg %d", ErrAlgorithmNotAllowed, int64(alg))
@@ -61,10 +61,10 @@ func VerifyCOSESign1(raw []byte, key stdcrypto.PublicKey) ([]byte, COSEHeader, e
 	}
 	verifier, err := cose.NewVerifier(alg, pub)
 	if err != nil {
-		return nil, nil, fmt.Errorf("%w: %v", ErrKeyTypeNotAllowed, err)
+		return nil, nil, fmt.Errorf("%w: %w", ErrKeyTypeNotAllowed, err)
 	}
 	if err := msg.Verify(nil, verifier); err != nil {
-		return nil, nil, fmt.Errorf("%w: %v", ErrVerificationFailed, err)
+		return nil, nil, fmt.Errorf("%w: %w", ErrVerificationFailed, err)
 	}
 	return msg.Payload, protectedToMap(msg.Headers.Protected), nil
 }
@@ -115,15 +115,15 @@ func SignCOSESign1(ctx context.Context, kp KeyProvider, keyID string, protected 
 	}
 	csigner, err := cose.NewSigner(alg, signer)
 	if err != nil {
-		return nil, fmt.Errorf("%w: %v", ErrKeyTypeNotAllowed, err)
+		return nil, fmt.Errorf("%w: %w", ErrKeyTypeNotAllowed, err)
 	}
 	msg := cose.Sign1Message{Headers: hdrs, Payload: payload}
 	if err := msg.Sign(rand.Reader, nil, csigner); err != nil {
-		return nil, fmt.Errorf("%w: %v", ErrMalformed, err)
+		return nil, fmt.Errorf("%w: %w", ErrMalformed, err)
 	}
 	out, err := msg.MarshalCBOR()
 	if err != nil {
-		return nil, fmt.Errorf("%w: %v", ErrMalformed, err)
+		return nil, fmt.Errorf("%w: %w", ErrMalformed, err)
 	}
 	return out, nil
 }

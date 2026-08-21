@@ -28,9 +28,9 @@ type Policy interface {
 func ECCG() Policy { return eccg }
 
 type policy struct {
-	jwsAlgs  map[string]stdcrypto.Hash
-	jweAlgs  map[string]bool
-	jweEncs  map[string]bool
+	jwsAlgs   map[string]stdcrypto.Hash
+	jweAlgs   map[string]bool
+	jweEncs   map[string]bool
 	coseAlgs  map[int64]bool
 	curves    map[string]bool
 	hashNames map[string]stdcrypto.Hash

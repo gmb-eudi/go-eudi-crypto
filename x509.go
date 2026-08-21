@@ -90,7 +90,7 @@ func ParseCertChain(raw []byte) ([]*x509.Certificate, error) {
 			}
 			c, err := x509.ParseCertificate(block.Bytes)
 			if err != nil {
-				return nil, fmt.Errorf("%w: %v", ErrMalformed, err)
+				return nil, fmt.Errorf("%w: %w", ErrMalformed, err)
 			}
 			certs = append(certs, c)
 		}
@@ -101,7 +101,7 @@ func ParseCertChain(raw []byte) ([]*x509.Certificate, error) {
 	}
 	certs, err := x509.ParseCertificates(raw)
 	if err != nil {
-		return nil, fmt.Errorf("%w: %v", ErrMalformed, err)
+		return nil, fmt.Errorf("%w: %w", ErrMalformed, err)
 	}
 	if len(certs) == 0 {
 		return nil, fmt.Errorf("%w: no certificates", ErrMalformed)

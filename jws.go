@@ -80,17 +80,17 @@ func SignJWS(ctx context.Context, kp KeyProvider, keyID string, protected map[st
 				return nil, err
 			}
 			if err := hdrs.Set("x5c", cc); err != nil {
-				return nil, fmt.Errorf("%w: header x5c: %v", ErrMalformed, err)
+				return nil, fmt.Errorf("%w: header x5c: %w", ErrMalformed, err)
 			}
 			continue
 		}
 		if err := hdrs.Set(k, v); err != nil {
-			return nil, fmt.Errorf("%w: header %q: %v", ErrMalformed, k, err)
+			return nil, fmt.Errorf("%w: header %q: %w", ErrMalformed, k, err)
 		}
 	}
 	out, err := jws.Sign(payload, jws.WithKey(a, signer, jws.WithProtectedHeaders(hdrs)))
 	if err != nil {
-		return nil, fmt.Errorf("%w: %v", ErrMalformed, err)
+		return nil, fmt.Errorf("%w: %w", ErrMalformed, err)
 	}
 	return out, nil
 }
@@ -131,7 +131,7 @@ func VerifyJWS(token []byte, key stdcrypto.PublicKey) ([]byte, Header, error) {
 	}
 	payload, err := jws.Verify(token, jws.WithKey(a, pub))
 	if err != nil {
-		return nil, nil, fmt.Errorf("%w: %v", ErrVerificationFailed, err)
+		return nil, nil, fmt.Errorf("%w: %w", ErrVerificationFailed, err)
 	}
 	return payload, hdr, nil
 }
@@ -149,7 +149,7 @@ func certChain(chain []*x509.Certificate) (*cert.Chain, error) {
 			return nil, fmt.Errorf("%w: x5c[%d] is nil", ErrMalformed, i)
 		}
 		if err := cc.AddString(base64.StdEncoding.EncodeToString(c.Raw)); err != nil {
-			return nil, fmt.Errorf("%w: x5c[%d]: %v", ErrMalformed, i, err)
+			return nil, fmt.Errorf("%w: x5c[%d]: %w", ErrMalformed, i, err)
 		}
 	}
 	return cc, nil

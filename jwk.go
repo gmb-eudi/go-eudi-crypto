@@ -44,7 +44,7 @@ func curveForJWK(crv string) (elliptic.Curve, error) {
 func ParseECPublicKeyJWK(jwkJSON []byte) (stdcrypto.PublicKey, error) {
 	var j ecJWK
 	if err := json.Unmarshal(jwkJSON, &j); err != nil {
-		return nil, fmt.Errorf("%w: EC JWK: %v", ErrMalformed, err)
+		return nil, fmt.Errorf("%w: EC JWK: %w", ErrMalformed, err)
 	}
 	if j.Kty != "EC" {
 		return nil, fmt.Errorf("%w: JWK kty %q, EC required", ErrKeyTypeNotAllowed, j.Kty)
@@ -58,11 +58,11 @@ func ParseECPublicKeyJWK(jwkJSON []byte) (stdcrypto.PublicKey, error) {
 	}
 	xb, err := base64.RawURLEncoding.DecodeString(j.X)
 	if err != nil {
-		return nil, fmt.Errorf("%w: EC JWK x: %v", ErrMalformed, err)
+		return nil, fmt.Errorf("%w: EC JWK x: %w", ErrMalformed, err)
 	}
 	yb, err := base64.RawURLEncoding.DecodeString(j.Y)
 	if err != nil {
-		return nil, fmt.Errorf("%w: EC JWK y: %v", ErrMalformed, err)
+		return nil, fmt.Errorf("%w: EC JWK y: %w", ErrMalformed, err)
 	}
 	// [RFC 7518 §6.2.1.2]/.3: x and y are the fixed-size big-endian field
 	// elements; reject wrong-sized inputs (they would silently zero-extend).
@@ -79,7 +79,7 @@ func ParseECPublicKeyJWK(jwkJSON []byte) (stdcrypto.PublicKey, error) {
 	copy(point[1+size:], yb)
 	pub, err := ecdsa.ParseUncompressedPublicKey(curve, point)
 	if err != nil {
-		return nil, fmt.Errorf("%w: EC JWK point invalid: %v", ErrMalformed, err)
+		return nil, fmt.Errorf("%w: EC JWK point invalid: %w", ErrMalformed, err)
 	}
 	return pub, nil
 }
@@ -103,7 +103,7 @@ func ECPublicKeyToJWK(pub stdcrypto.PublicKey) (map[string]any, error) {
 	// (Go 1.25+ encoder; avoids deprecated raw X/Y access).
 	raw, err := ec.Bytes()
 	if err != nil {
-		return nil, fmt.Errorf("%w: EC public key: %v", ErrMalformed, err)
+		return nil, fmt.Errorf("%w: EC public key: %w", ErrMalformed, err)
 	}
 	size := (ec.Curve.Params().BitSize + 7) / 8
 	if len(raw) != 1+2*size || raw[0] != 0x04 {

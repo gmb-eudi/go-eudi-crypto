@@ -7,7 +7,6 @@ import (
 	"crypto/elliptic"
 	"encoding/hex"
 	"errors"
-	"math/big"
 	"testing"
 
 	"github.com/veraison/go-cose"
@@ -102,9 +101,18 @@ func TestCOSESign1RFCVector(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	x, _ := new(big.Int).SetString("bac5b11cad8f99f9c72b05cf4b9e26d244dc189f745228255a219a86d6a09eff", 16)
-	y, _ := new(big.Int).SetString("20138bf82dc1b6d562be0fa54ab7804a3a64b6d72ccfed6b6fb6ed28bbfc117e", 16)
-	pub := &ecdsa.PublicKey{Curve: elliptic.P256(), X: x, Y: y}
+	// 0x04 || X || Y — parsed rather than assigned to the deprecated X/Y fields.
+	pt, err := hex.DecodeString("04" +
+		"bac5b11cad8f99f9c72b05cf4b9e26d244dc189f745228255a219a86d6a09eff" +
+		"20138bf82dc1b6d562be0fa54ab7804a3a64b6d72ccfed6b6fb6ed28bbfc117e")
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	pub, err := ecdsa.ParseUncompressedPublicKey(elliptic.P256(), pt)
+	if err != nil {
+		t.Fatal(err)
+	}
 	payload, protected, err := crypto.VerifyCOSESign1(msg, pub)
 	if err != nil {
 		t.Fatal(err)
