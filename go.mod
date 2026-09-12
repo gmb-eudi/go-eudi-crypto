@@ -1,6 +1,6 @@
 module github.com/gmb-eudi/go-eudi-crypto
 
-go 1.26.6
+go 1.27.0
 
 require (
 	github.com/lestrrat-go/jwx/v3 v3.3.0
