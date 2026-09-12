@@ -3,6 +3,35 @@
 Notable changes to this library, newest first. Versions are git tags; this file is written
 for whoever bumps the dependency.
 
+## v0.0.8
+
+Dependency maintenance. No source changed here, and nothing this library does behaves differently —
+but the JOSE library it signs, verifies, encrypts and decrypts with moves a minor, so read the note
+before you bump.
+
+### Notes
+
+- **`github.com/lestrrat-go/jwx/v3` → v3.3.0** (was v3.2.0). This library uses four of its packages:
+  `jwa`, `jwe`, `jws` and `cert`. Measured against that release rather than assumed — `cert` is
+  **byte-identical** between the two versions; `jwa` changes nothing but a build file; `jwe` has its
+  generated headers regenerated; and `jws`, which this library calls for `Sign` and `Verify`, is the
+  one that moved, gaining internal packages and regenerated headers.
+
+  **No source change was needed here and the full gate is green on the new set** — build, vet,
+  `gofmt`, `go mod verify`, `go mod tidy -diff`, and `go test -race` across both packages with **0
+  races**, which includes the COSE_Sign1 round-trip, tamper, algorithm-mismatch and RFC-vector
+  cases. What is written above is what was read and measured against *this* library; it is not a
+  review of that jwx release.
+
+- **`golang.org/x/crypto` → v0.57.0** (was v0.55.0, indirect). The move crosses v0.56.0, which fixed
+  **GO-2026-6354** and **GO-2026-6355** upstream. `govulncheck` reports **0 vulnerabilities this
+  library's code is affected by**, with one remaining in a required module whose vulnerable path is
+  not called from here. `golang.org/x/sys` → v0.48.0 in the same pass.
+
+- Repository hygiene, with no effect on code that uses the library: CI now also runs on pushes to
+  `develop`, its `setup-go` pin rolled forward, and a stray comment was cleaned out of
+  `.gitattributes`.
+
 ## v0.0.7
 
 Compatible: no signature changes, no message-text changes, nothing that passed before now
