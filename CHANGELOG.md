@@ -5,26 +5,33 @@ for whoever bumps the dependency.
 
 ## v0.0.9
 
-**Requires Go 1.27.0.** The `go` directive moves up from 1.26.6, so a consumer on an older
-toolchain will not build this version. Nothing else changed here — no source, no signature, no
-message text, and the dependency graph is untouched.
+**Requires Go 1.27.2.** The `go` directive moves up from 1.26.6, so a consumer on an older
+toolchain will not build this version. Go 1.27.2 is a security release, and this library's code
+reaches four of the standard-library vulnerabilities it fixes. Nothing else changed here: no
+source, no signature, no message text, and no direct dependency.
 
 ### Changed
 
-- **`go` directive 1.26.6 → 1.27.0** — the minimum Go version a consumer needs. The services
-  in this project already required 1.27.0 while the libraries were the half still behind, so
-  they are brought up together and the whole codebase now asks for one toolchain.
+- **`go` directive 1.26.6 → 1.27.2**, the minimum Go version a consumer needs. Under Go 1.27.0,
+  `govulncheck` finds four vulnerabilities this library's code calls, all in `net/http`:
+  GO-2026-6603, -6611, -6613 and -6617. Under 1.27.2 it finds none. Raise your own module's `go`
+  directive to `1.27.2`; from there the go command downloads and uses that toolchain by itself.
 
 ### Notes
 
-- The gate is green on the new directive: `go mod verify`, `go mod tidy -diff`, build, vet,
-  `gofmt`, and `go test -race` with **0 races** under a Go 1.27.0 toolchain. `govulncheck`
-  reports **0 vulnerabilities this library's code is affected by**. One advisory stands at
-  module level — **GO-2026-5932**, the unmaintained `golang.org/x/crypto/openpgp` package. It
-  has **no fixed version**, so no bump clears it, and nothing here imports it.
+- **Indirect modules moved** through the existing dependencies: `fxamacker/cbor/v2` → v2.9.6,
+  `goccy/go-json` → v0.11.2, `golang.org/x/crypto` → v0.58.0, `golang.org/x/sys` → v0.49.0.
+  The direct dependencies (`lestrrat-go/jwx/v3` v3.3.0, `veraison/go-cose` v1.3.0) are already the
+  latest.
 
-- Repository hygiene, with no effect on code that uses the library: the pinned GitHub Actions
-  moved to their current commits.
+- The gate is green on Go 1.27.2: `go mod verify`, `go mod tidy -diff`, build, vet, `gofmt`,
+  golangci-lint v2.14.0, `go test -race` with **0 races**, and all six fuzz targets for 30 seconds
+  each with no failing input. `govulncheck` now reports **no vulnerabilities found** at any level, the module-level `golang.org/x/crypto/openpgp` advisory
+  (GO-2026-5932) included.
+
+- Repository hygiene, with no effect on code that uses the library: CI's linter moved to
+  golangci-lint v2.14.0 (the earlier release cannot read Go 1.27.2's compiled standard library),
+  and the pinned GitHub Actions moved to their current commits.
 
 ## v0.0.8
 
